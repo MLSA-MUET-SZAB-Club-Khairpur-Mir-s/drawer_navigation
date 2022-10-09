@@ -1,86 +1,65 @@
+import 'package:drawer_navigation/navigation_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:drawer_navigation/settingpage.dart';
+import 'package:provider/provider.dart';
+
+import 'home.dart';
 
 void main() {
-  runApp(MaterialApp(
-    title: "My app",
-    home: MyDrawer(),
+  runApp(ChangeNotifierProvider(
+    create: (context) => NavigationProvider(),
+    child: const MaterialApp(
+      title: "My app",
+      home: MyDrawer(),
+    ),
   ));
 }
 
-class MyDrawer extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() {
-    // ignore: no_logic_in_create_state
-    return _MyDrawerState();
-  }
-}
+class MyDrawer extends StatelessWidget {
+  const MyDrawer({Key? key}) : super(key: key);
 
-class _MyDrawerState extends State<MyDrawer> {
+  final screens = const [
+    HomePage(),
+    SettingsPage(),
+  ];
+
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<NavigationProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text("My App"),
+        title: const Text("Drawer Navigation"),
       ),
       drawer: Drawer(
-        child: Column(
-          children: <Widget>[
-            Container(
-              color: Theme.of(context).primaryColor,
-              width: double.infinity,
-              child: Column(
-                children: <Widget>[
-                  Container(
-                    margin: EdgeInsets.only(top: 30),
-                    width: 85,
-                    height: 100,
-                    decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        image: DecorationImage(
-                            image: NetworkImage(
-                                "https://avatars.githubusercontent.com/u/60064591?s=400&v=4"))),
-                  ),
-                  Text(
-                    "Muhammad Hassan",
-                    style: TextStyle(fontSize: 20, color: Colors.white),
-                  )
-                ],
+        child: ListView(
+          children: [
+            const DrawerHeader(
+              child: Text("Drawer Header"),
+              decoration: BoxDecoration(
+                color: Colors.blue,
               ),
             ),
             ListTile(
-              title: Text(
-                "Home",
-                style: TextStyle(fontSize: 20),
-              ),
-              leading: Icon(Icons.home),
-              onTap: null,
-            ),
-            ListTile(
-              title: Text(
-                "Setting",
-                style: TextStyle(fontSize: 20),
-              ),
-              leading: Icon(Icons.settings),
+              title: const Text("Home"),
               onTap: () {
-                Navigator.of(context).pop();
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => settingpage()));
+                Provider.of<NavigationProvider>(context, listen: false)
+                    .changeIndex(0);
+                Navigator.pop(context);
               },
             ),
             ListTile(
-              title: Text(
-                "Logout",
-                style: TextStyle(fontSize: 20),
-              ),
-              leading: Icon(Icons.logout),
-            )
+              title: const Text("Settings"),
+              onTap: () {
+                Provider.of<NavigationProvider>(context, listen: false)
+                    .changeIndex(1);
+                Navigator.pop(context);
+              },
+            ),
           ],
         ),
       ),
-      body: Center(
-        child: Text("Home Page"),
-      ),
+      body: screens[provider.currentIndex],
     );
   }
 }
